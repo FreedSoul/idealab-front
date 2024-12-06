@@ -39,3 +39,28 @@ export interface MapState {
   setRoutes: (routes: Route[]) => void;
   setSelectedIncidentType: (type: string | null) => void;
 }
+
+// nuevos
+
+export type User = {
+  id: string;
+  fullName: string;
+  email: string;
+  department: string;
+};
+
+export type Incident = {
+  id: string;
+  type: 'accident' | 'roadwork' | 'closure';
+  location: {
+    lat: number;
+    lng: number;
+  };
+  department: string;
+  city: string;
+  severity: 'high' | 'medium' | 'low';
+  timestamp: string;
+  description: string;
+  status: 'active' | 'resolved';
+  estimatedResolutionTime: string;
+};
