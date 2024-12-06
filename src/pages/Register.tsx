@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { COLOMBIA_DEPARTMENTS } from '../lib/constants';
+import axios from 'axios';
 
 const registerSchema = z.object({
-  fullName: z.string().min(2),
+  username: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(8),
   confirmPassword: z.string().min(8),
@@ -17,6 +18,8 @@ const registerSchema = z.object({
 
 type RegisterForm = z.infer<typeof registerSchema>;
 
+const baseURL = 'http://localhost:3000/api/auth/register';
+
 export function Register() {
   const {
     register,
@@ -26,9 +29,41 @@ export function Register() {
     resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = (data: RegisterForm) => {
-    console.log(data);
-    // Handle registration logic here
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const onSubmit = async (data: RegisterForm) => {
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const payload = {
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        role: 'user'
+      };
+
+      const response = await axios.post(baseURL, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('Registration successful:', response.data);
+
+      // Handle success (e.g., redirect, show success message)
+      alert('Registration successful! Please log in.');
+    } catch (error: any) {
+      if (error.response) {
+        setErrorMessage(error.response.data.message || 'Registration failed');
+      } else {
+        setErrorMessage('An error occurred. Please try again.');
+      }
+      console.error('Registration error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -43,14 +78,14 @@ export function Register() {
           <div className="rounded-md shadow-sm -space-y-px">
             <div className="mb-4">
               <input
-                {...register('fullName')}
+                {...register('username')}
                 type="text"
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Full Name"
               />
-              {errors.fullName && (
+              {errors.username && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.fullName.message}
+                  {errors.username.message}
                 </p>
               )}
             </div>
