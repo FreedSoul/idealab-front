@@ -70,7 +70,7 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({ type, placeholde
           } rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
           placeholder={placeholder}
           onChange={(e) => handleSearch(e.target.value)}
-          disabled={isSearching}
+          // disabled={isSearching}
         />
       </div>
       

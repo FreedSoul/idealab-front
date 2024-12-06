@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -11,7 +12,13 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
+const baseURL = "localhost:3000/api/auth/login";
+
+
 export function Login() {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -19,10 +26,41 @@ export function Login() {
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
   });
+  
+  const loginUser = async (data: LoginForm) => {
+    setIsLoading(true);
+    setErrorMessage(null); // Clear any previous error messages
+    try {
+      const response = await axios.post(baseURL, data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("Login successful:", response.data);
+
+      // Redirect the user or handle login success (e.g., save token)
+      // Example: Save token to localStorage
+      localStorage.setItem("token", response.data.token);
+
+      // Redirect to the dashboard or another page
+      window.location.href = "/dashboard";
+    } catch (error: any) {
+      // Handle error from the API
+      if (error.response) {
+        setErrorMessage(error.response.data.message || "Login failed");
+      } else {
+        setErrorMessage("An error occurred. Please try again.");
+      }
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const onSubmit = (data: LoginForm) => {
     console.log(data);
-    // Handle login logic here
+    loginUser(data);
   };
 
   return (
@@ -30,14 +68,14 @@ export function Login() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            Sign in to your account
+            Ingresa a tu Cuenta
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email" className="sr-only">
-                Email address
+                Correo Electronico
               </label>
               <input
                 {...register('email')}
@@ -51,7 +89,7 @@ export function Login() {
             </div>
             <div>
               <label htmlFor="password" className="sr-only">
-                Password
+                Clave
               </label>
               <input
                 {...register('password')}
@@ -73,7 +111,7 @@ export function Login() {
                 to="/forgot-password"
                 className="font-medium text-indigo-600 hover:text-indigo-500"
               >
-                Forgot your password?
+                Olvidaste tu Contraseña?
               </Link>
             </div>
           </div>
@@ -83,7 +121,7 @@ export function Login() {
               type="submit"
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Sign in
+              Logeate!
             </button>
           </div>
         </form>
