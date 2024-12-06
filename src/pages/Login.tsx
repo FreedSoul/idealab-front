@@ -12,7 +12,7 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
-const baseURL = "localhost:3000/api/auth/login";
+const baseURL = "http://localhost:3000/api/auth/login";
 
 
 export function Login() {
@@ -31,7 +31,12 @@ export function Login() {
     setIsLoading(true);
     setErrorMessage(null); // Clear any previous error messages
     try {
-      const response = await axios.post(baseURL, data, {
+      const payload = {
+        identifier: data.email,
+        password: data.password,
+      };
+
+      const response = await axios.post(baseURL, payload, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -52,7 +57,7 @@ export function Login() {
       } else {
         setErrorMessage("An error occurred. Please try again.");
       }
-      console.error("Login error:", error);
+      // console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
